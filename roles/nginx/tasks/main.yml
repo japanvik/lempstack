@@ -1,0 +1,17 @@
+---
+- name: Install nginx
+  apt: pkg=nginx state=present
+
+- name: Make directory /var/www
+  file: path=/var/www state=directory mode=0755
+
+- name: Copy the default site to /var/www/html
+  command: cp -a /usr/share/nginx/html /var/www
+
+- name: Change defaut web path to /var/www/html
+  lineinfile: dest=/etc/nginx/sites-available/default regexp="{{item.regexp}}" line="{{item.line}}"
+  with_items:
+    - { regexp: '^\troot /usr/share/nginx/html;', line: '\troot /var/www/html;'}
+
+- name: Restart Nginx
+  service: name=nginx state=restarted

@@ -1,0 +1,11 @@
+- hosts: all
+  sudo: yes
+  vars:
+    mysql_root_passwd: 'root'
+    php_upload_max_filesize: 100M
+    php_post_max_size: 100M
+  roles:
+    - update
+    - nginx
+    - mysql
+    - php

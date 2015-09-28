@@ -1,0 +1,5 @@
+---
+mysql_root_passwd: supersecret #overwrite!
+mysql_rm_anon_user: y #y/n
+mysql_disallow_root_remote_login: y #y/n
+mysql_rm_test_db: y #y/n

@@ -1,0 +1,9 @@
+---
+# Which version of WordPress to deploy
+wp_version: 4.5.2
+wp_sha256sum: 1a4d9f05142701e72413609cc30029f66af0f3b29d4ff051e888f48026d20ac9
+
+# WordPress database settings for MySQL
+wp_db_name: wordpress
+wp_db_user: wordpress
+wp_db_password: changeme

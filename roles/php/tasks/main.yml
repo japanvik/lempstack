@@ -14,11 +14,8 @@
     - { regexp: '^upload_max_filesize', line: 'upload_max_filesize = {{php_upload_max_filesize}}'}
     - { regexp: '^post_max_size', line: 'post_max_size = {{php_post_max_size}}'}
 
-- name: Update nginx default site to work with PHP
-  lineinfile: dest=/etc/nginx/sites-available/default regexp="{{item.regexp}}" line="{{item.line}}"
-  with_items:
-    - { regexp: '^\tindex index.html index.htm;', line: '\tindex index.php index.html index.htm;'}
-    - { regexp: '^\t# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000', line: '\tlocation ~ \.php$ {\n\t\ttry_files $uri =404;\n\t\tfastcgi_split_path_info ^(.+\.php)(/.+)$;\n\t\tfastcgi_pass unix:/var/run/php5-fpm.sock;\n\t\tfastcgi_index index.php;fastcgi_buffer_size 16k;\n\t\tfastcgi_buffers 4 16k;\n\t\tfastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n\t\tinclude fastcgi_params;\n\t}'}
+- name: Copy nginx configuration for wordpress
+  template: src=default dest=/etc/nginx/sites-available/default
 
 - name: Restart Nginx
   service: name=nginx state=restarted

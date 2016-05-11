@@ -22,7 +22,7 @@
   template: src=wp-config.php dest=/var/www/wordpress/
 
 - name: Create the uploads directory
-  file: path=/src/www state=directory owner=www-data
+  file: path=/var/www/wordpress/wp-content/uploads state=directory owner=www-data
 
 - name: Change ownership of WordPress installation
   file: path=/var/www/wordpress/ owner=www-data group=www-data state=directory recurse=yes

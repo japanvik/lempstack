@@ -8,10 +8,13 @@
 - name: Copy the default site to /var/www/html
   command: cp -a /usr/share/nginx/html /var/www
 
+- name: Copy the default  config for backup
+  command: cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.org
+
 - name: Change defaut web path to /var/www/html
   lineinfile: dest=/etc/nginx/sites-available/default regexp="{{item.regexp}}" line="{{item.line}}"
   with_items:
-    - { regexp: '^\troot /usr/share/nginx/html;', line: '\troot /var/www/html;'}
+    - { regexp: '^\troot /usr/share/nginx/html;', line: "\troot /var/www/html;"}
 
 - name: Restart Nginx
   service: name=nginx state=restarted

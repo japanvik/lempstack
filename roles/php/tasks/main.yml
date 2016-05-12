@@ -6,6 +6,7 @@
     - php5-mysql
     - php5-gd
     - php5-curl
+    - libssh2-php
 
 - name: secure php config
   lineinfile: dest=/etc/php5/fpm/php.ini regexp="{{item.regexp}}" line="{{item.line}}"

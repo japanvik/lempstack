@@ -1,25 +1,11 @@
 ---
-- name: install dependencies
-  apt: name={{item}} state=present
-  with_items:
-    - libssh2-php
+- name: Download Wordpress
+  get_url: url=https://wordpress.org/wordpress-{{ wp_version }}.tar.gz dest=/tmp/wordpress.tar.gz validate_certs=no
+  sudo: yes
 
-- name: Download and extract WordPress
-  unarchive: src=http://wordpress.org/wordpress-{{ wp_version }}.tar.gz dest=/var/www/ copy=no
-
-- name: Fetch random salts for WordPress config
-  local_action: command curl https://api.wordpress.org/secret-key/1.1/salt/
-  register: "wp_salt"
-  sudo: no
-
-- name: Create WordPress database
-  mysql_db: name={{ wp_db_name }} state=present login_password={{ mysql_root_passwd }}
-
-- name: Create WordPress database user
-  mysql_user: name={{ wp_db_user }} password={{ wp_db_password }} priv={{ wp_db_name }}.*:ALL host='localhost' state=present login_password={{ mysql_root_passwd }}
-
-- name: Copy WordPress config file
-  template: src=wp-config.php dest=/var/www/wordpress/
+- name: Extract WordPress
+  unarchive: src=/tmp/wordpress.tar.gz dest=/var/www/ copy=no
+  sudo: yes
 
 - name: Create the uploads directory
   file: path=/var/www/wordpress/wp-content/uploads state=directory owner=www-data
@@ -27,7 +13,28 @@
 - name: Change ownership of WordPress installation
   file: path=/var/www/wordpress/ owner=www-data group=www-data state=directory recurse=yes
 
-- name: Change defaut config
+- name: Copy sample config file
+  command: mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php creates=/var/www/wordpress/wp-config.php
+  sudo: yes
+
+- name: Update WordPress config file
+  lineinfile:
+    dest=/var/www/wordpress/wp-config.php
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+  with_items:
+    - {'regexp': "define\\('DB_NAME', '(.)+'\\);", 'line': "define('DB_NAME', '{{wp_db_name}}');"}
+    - {'regexp': "define\\('DB_USER', '(.)+'\\);", 'line': "define('DB_USER', '{{wp_db_user}}');"}
+    - {'regexp': "define\\('DB_PASSWORD', '(.)+'\\);", 'line': "define('DB_PASSWORD', '{{wp_db_password}}');"}
+  sudo: yes
+
+- name: Create WordPress database
+  mysql_db: name={{ wp_db_name }} state=present login_user=root login_password={{ mysql_root_passwd }}
+
+- name: Create WordPress database user
+  mysql_user: name={{ wp_db_user }} password={{ wp_db_password }} priv={{ wp_db_name }}.*:ALL host='localhost' state=present login_user=root login_password={{ mysql_root_passwd }}
+
+- name: Change Nginx defaut config
   lineinfile: dest=/etc/nginx/sites-available/default regexp="{{item.regexp}}" line="{{item.line}}"
   with_items:
     - { regexp: '^\troot /var/www/html;', line: "\troot /var/www/wordpress;"}
